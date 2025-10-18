@@ -1,0 +1,16 @@
+.env
+__pycache__/
+*.log
+.venv/
+venv/
+test-results/
+screenshots/
+videos/
+.pytest_cache/
+.cache/
+allure-results/
+allure-report/
+report.html
+.idea/
+# OS Files
+.DS_Store
