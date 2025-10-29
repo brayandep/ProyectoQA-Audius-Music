@@ -1,0 +1,4 @@
+{
+  "valid": { "email": "202000736@est.umss.edu", "password": "76986478a" },
+  "invalid": { "email": "fake@example.com", "password": "BadPass123" }
+}
