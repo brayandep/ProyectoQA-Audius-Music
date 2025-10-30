@@ -19,14 +19,15 @@ def storage_state():
     with sync_playwright() as p:
         # 🔽 Esta parte es donde añadimos la variable HEADLESS
         headless = os.getenv("HEADLESS", "false").lower() == "true"
-        browser = p.chromium.launch(headless=headless, slow_mo=200)
+        browser = p.chromium.launch(headless=False, slow_mo=300)
+
         page = browser.new_page()
 
         page.goto("https://audius.co/signin")
         page.get_by_label("Email").fill(os.getenv("AUDIUS_EMAIL"))
         page.locator('input[name="password"]').fill(os.getenv("AUDIUS_PASSWORD"))
         page.get_by_role("button", name="Sign In").click()
-        page.wait_for_url("**/feed*", timeout=30000)
+        page.wait_for_url("**/feed*", timeout=20000)
         print("🎵 Sesión iniciada correctamente.")
 
         page.context.storage_state(path=storage_path)
@@ -41,7 +42,13 @@ def page_with_session(storage_state):
     from playwright.sync_api import sync_playwright
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        context = browser.new_context(storage_state=storage_state)
+        context = browser.new_context(
+        user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.5993.90 Safari/537.36"
+        )
         page = context.new_page()
+        ##browser = p.chromium.launch(headless=True)
+        
+        ##context = browser.new_context(storage_state=storage_state)
+        ##page = context.new_page()
         yield page
         browser.close()
