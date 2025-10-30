@@ -18,9 +18,12 @@ class LoginPage(BasePage):
         self.page.fill(self.PASSWORD_INPUT, password)
         self.page.click(self.SUBMIT_BTN)
 
+
     def assert_logged_in(self):
         """Verifica si el usuario fue redirigido correctamente al feed."""
-        expect(self.page).to_have_url("https://audius.co/signin/confirm-email", timeout=15000)
+        expect(self.page).to_have_url("https://audius.co/feed", timeout=15000)
+    def go_to_feed(self):
+        self.page.goto(f"{settings.base_url}/feed", wait_until="networkidle")
 
     def assert_login_error(self):
         """Verifica que se mantenga en la página de login (sin redirigir)."""
