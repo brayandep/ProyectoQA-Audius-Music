@@ -1,9 +1,9 @@
 from playwright.sync_api import expect
-
+from config.settings import FEED_URL
 def test_your_feed(page_with_session):
     page = page_with_session
-    page.goto("https://audius.co/feed")
-    page.wait_for_timeout(2000)
+    page.goto(FEED_URL)
+   
     try:
         expect(page.locator("text=Your Feed")).to_be_visible(timeout=15000)
         print("✅ El módulo 'Your Feed' se cargó correctamente.")
