@@ -14,3 +14,4 @@ report.html
 .idea/
 # OS Files
 .DS_Store
+storageState.json
