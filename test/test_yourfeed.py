@@ -17,7 +17,7 @@ def test_TC001_titulo_your_feed(page_with_session):
     print("✅ Título 'Your Feed' visible correctamente.")
 
 
-@pytest.mark.run
+@pytest.mark.functional
 def test_TC002_reproduccion_en_mini_player(page_with_session):
     """Verifica que al hacer clic en la tarjeta se muestre el mini reproductor."""
     feed = YourFeedPage(page_with_session)
@@ -30,7 +30,7 @@ def test_TC002_reproduccion_en_mini_player(page_with_session):
 
 @pytest.mark.functional
 def test_TC003_marcar_repost(page_with_session):
-    """Verifica que el botón 'Repost' pueda marcarse correctamente."""
+    """Verifica que el botón 'Repost' pueda cambiar a unrepost o sucesivamente."""
     feed = YourFeedPage(page_with_session)
     feed.open()
     feed.handle_notification_modal() 
@@ -48,7 +48,7 @@ def test_TC004_desplegar_opciones(page_with_session):
     print("✅ Menú de opciones desplegado correctamente.")
 
 
-@pytest.mark.functional
+@pytest.mark.run
 def test_TC005_crear_playlist(page_with_session):
     """Verifica que se pueda crear una nueva playlist desde el menú."""
     feed = YourFeedPage(page_with_session)

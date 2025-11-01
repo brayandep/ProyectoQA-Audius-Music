@@ -2,7 +2,7 @@
 from playwright.sync_api import Page, Locator, expect, TimeoutError as PlaywrightTimeoutError
 from config.settings import FEED_URL
 from playwright_helpers.locators import (
-    by_testid, has_testid, has_class, attr_contains, any_of, text_exact, text_like
+    by_testid, has_testid, has_class, attr_contains, any_of, text_exact, text_like,by_role
 )
 
 
@@ -34,15 +34,20 @@ class YourFeedPage:
         # Botón Play / Pause (el SVG con <title>Play/Pause)
         self.card_play_btn = self.card.locator(
            any_of(
+            has_class("artworkWrapper"),
             has_class("artworkIcon"),
-            "svg >> text=/^(Play|Pause)$/"
+            "svg "
               )
         ).first
 
         # Repost / Favorite en la tarjeta
         self.repost_button: Locator = page.locator(
-            any_of(has_testid("repost"), attr_contains("aria-label", "Repost"))
-        ).first
+         any_of(
+             has_testid("repost"),
+             attr_contains("aria-label", "Repost"),
+            attr_contains("aria-label", "Unrepost")
+                )
+            ).first
         self.favorite_button: Locator = page.locator(
             any_of(has_testid("favorite"), attr_contains("aria-label", "Favorite"))
         ).first
@@ -51,12 +56,17 @@ class YourFeedPage:
         self.more_options_button: Locator = page.locator(
             any_of(
                 attr_contains("aria-label", "More options"),
-                has_testid("more"),
-                "button:has(svg)"
+                #has_testid("more")
+                #"button:has(svg)"
             )
         ).first
 
         # Opciones del menú desplegable
+        self.popup_menu = page.locator(any_of(
+            has_class("popup"),
+            by_role("menu")
+              )
+        ).first
         self.add_playlist_option: Locator   = page.locator(text_exact("Add to Playlist"))
         self.new_playlist_option: Locator   = page.locator(text_exact("New Playlist"))
         self.share_option: Locator          = page.locator(text_exact("Share"))
@@ -151,10 +161,16 @@ class YourFeedPage:
 
     def play_from_card(self):
         """Hace click en la tarjeta/botón y verifica que el mini-player quede en estado 'Pause'."""
-        boton = self.self.card_play_btn
+        boton = (
+              self.card_play_btn if self.card_play_btn.count() > 0
+                else (self.card_artwork if self.card_artwork.count() > 0 else self.card)
+                )
+        #boton = self.card_play_btn or self.card or self.card_artwork
 
         # Click para iniciar reproducción hasta que sea visible el boton
-        self._click_when_visible(boton)
+        self._click_when_visible(boton.locator("xpath=ancestor::button|.."))
+        #self._click_when_visible(boton)
+        #boton.click()
 
         # Asegura que el mini-player aparece
         self._wait_visible(self.mini_player, timeout=10000)
@@ -170,16 +186,23 @@ class YourFeedPage:
             self._wait_visible(self.mini_pause_btn, timeout=5000)
     def click_repost(self):
         self.handle_notification_modal()
+        estado_inicial = self.repost_button.get_attribute("aria-label")
+        print(f"🎵 Estado inicial: {estado_inicial}")
         self._click_when_visible(self.repost_button)
-        expect(self.repost_button).to_have_attribute("aria-pressed", "true")
+        estado_esperado = "Unrepost" if estado_inicial == "Repost" else "Repost"
+        expect(self.repost_button).to_have_attribute("aria-label", estado_esperado, timeout=8000)
+        print(f"✅ El botón cambió de '{estado_inicial}' a '{estado_esperado}'.")
 
     def open_more_options(self):
         self.handle_notification_modal()
         self._click_when_visible(self.more_options_button)
-        self._wait_visible(self.add_playlist_option)
+        self._wait_visible(self.popup_menu)
+        print("✅ Menú de opciones desplegado correctamente.")
+       # self._wait_visible(self.add_playlist_option)
 
     def create_playlist(self):
         self.handle_notification_modal()
+        self._click_when_visible(self.more_options_button)
         self._click_when_visible(self.add_playlist_option)
         self._click_when_visible(self.new_playlist_option)
         self._wait_visible(self.confirm_toast, timeout=8000)
