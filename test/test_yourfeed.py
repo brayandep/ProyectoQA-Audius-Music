@@ -17,7 +17,7 @@ def test_TC001_titulo_your_feed(page_with_session):
     print("✅ Título 'Your Feed' visible correctamente.")
 
 
-@pytest.mark.functional
+@pytest.mark.run
 def test_TC002_reproduccion_en_mini_player(page_with_session):
     """Verifica que al hacer clic en la tarjeta se muestre el mini reproductor."""
     feed = YourFeedPage(page_with_session)

@@ -18,16 +18,25 @@ class YourFeedPage:
 
         # Tarjeta (track)
         self.card: Locator = page.locator(
-            any_of(by_testid("trackTile"), has_class("track"))
+            any_of(
+                #by_testid("trackTile"), 
+                has_class("artworkWrapper"))
+        ).first
+        #imagen dentro de tarjeta
+        self.card_artwork = self.card.locator(
+            any_of(
+            has_class("artwork"),
+            has_testid("dynamic-image-first"),
+            has_testid("dynamic-image-second")
+         )
         ).first
 
-        # Botón/área de reproducción dentro de la tarjeta
-        self.play_button: Locator = page.locator(
-            any_of(
-                #has_testid("play"),
-                attr_contains("aria-label", "play track"),
-                has_class("_button_or4ao_1 _playButton_or4ao_86")
-            )
+        # Botón Play / Pause (el SVG con <title>Play/Pause)
+        self.card_play_btn = self.card.locator(
+           any_of(
+            has_class("artworkIcon"),
+            "svg >> text=/^(Play|Pause)$/"
+              )
         ).first
 
         # Repost / Favorite en la tarjeta
@@ -142,9 +151,9 @@ class YourFeedPage:
 
     def play_from_card(self):
         """Hace click en la tarjeta/botón y verifica que el mini-player quede en estado 'Pause'."""
-        boton = self.play_button if self.play_button.count() else self.card
+        boton = self.self.card_play_btn
 
-        # Click para iniciar reproducción
+        # Click para iniciar reproducción hasta que sea visible el boton
         self._click_when_visible(boton)
 
         # Asegura que el mini-player aparece
