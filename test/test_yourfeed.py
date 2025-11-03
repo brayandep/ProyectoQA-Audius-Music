@@ -48,7 +48,7 @@ def test_TC004_desplegar_opciones(page_with_session):
     print("✅ Menú de opciones desplegado correctamente.")
 
 
-@pytest.mark.run
+@pytest.mark.functional
 def test_TC005_crear_playlist(page_with_session):
     """Verifica que se pueda crear una nueva playlist desde el menú."""
     feed = YourFeedPage(page_with_session)
@@ -110,5 +110,6 @@ def test_TC010_copiar_link(page_with_session):
     feed.open()
     feed.handle_notification_modal() 
     feed.open_more_options()
+    feed.click_share()
     feed.click_copy_link()
     print("✅ Enlace copiado y mensaje de confirmación visible.")

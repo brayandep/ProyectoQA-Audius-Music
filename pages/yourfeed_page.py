@@ -49,7 +49,11 @@ class YourFeedPage:
                 )
             ).first
         self.favorite_button: Locator = page.locator(
-            any_of(has_testid("favorite"), attr_contains("aria-label", "Favorite"))
+            any_of(
+             has_testid("repost"),
+             attr_contains("aria-label", "Favorite"),
+             attr_contains("aria-label", "Unfavorite")
+            )
         ).first
 
         # Menú "más opciones"
@@ -67,14 +71,15 @@ class YourFeedPage:
             by_role("menu")
               )
         ).first
-        self.add_playlist_option: Locator   = page.locator(text_exact("Add to Playlist"))
+        self.add_playlist_option: Locator   = page.locator(text_exact("Add To Playlist"))
         self.new_playlist_option: Locator   = page.locator(text_exact("New Playlist"))
         self.share_option: Locator          = page.locator(text_exact("Share"))
         self.direct_message_option: Locator = page.locator(text_exact("Direct Message"))
         self.embedded_option: Locator       = page.locator(text_exact("Embed"))
         self.copy_link_option: Locator      = page.locator(text_exact("Copy Link"))
 
-        # Elementos/feedback tras acciones
+        # Elementos/feedback tras accionesclear
+        
         self.mini_player: Locator = page.locator(
             any_of(has_class("_playBarControls_1o5hm_30"))
             #any_of(by_testid("playerBar"), has_class("_playBarControls_1o5hm_30"), has_class("playBar"))
@@ -91,16 +96,19 @@ class YourFeedPage:
 
         self.confirm_toast: Locator = page.locator(
             any_of(
-                has_class("toast"),
+                 has_class("toast"),
                 '[role="status"]',
-                text_like("copied|added|playlist|saved")
-            )
+                 has_class("text"),                      # para clases tipo "_text_1x8em_1"
+                 text_like("Playlist Created|copied|added|saved")
+             )
         )
+        self.confirm_toast_newplaylist = page.locator(text_like("Playlist Created"))
+        self.confirm_toast_copyenlacetrack = page.locator(text_like("Copied Link to Track"))
         self.embed_modal: Locator = page.locator('[role="dialog"]').filter(
-            has=page.locator(text_exact("Embed"))
+            has=page.locator(text_exact("Embed Track"))
         )
         self.search_dm: Locator = page.locator(
-            any_of(attr_contains("placeholder", "Search"), attr_contains("aria-label", "Search"))
+            any_of(attr_contains("aria-labelledby", "modal-23-title"), attr_contains("aria-label", "Search Users"))
         )
 
         # === Modal de notificaciones ===
@@ -202,15 +210,21 @@ class YourFeedPage:
 
     def create_playlist(self):
         self.handle_notification_modal()
-        self._click_when_visible(self.more_options_button)
+        
         self._click_when_visible(self.add_playlist_option)
         self._click_when_visible(self.new_playlist_option)
-        self._wait_visible(self.confirm_toast, timeout=8000)
+        #self._wait_visible(self.confirm_toast, timeout=5000)
+        self._wait_visible(self.confirm_toast_newplaylist, timeout=8000)
+        print("✅ Confirmación visible: Playlist creada correctamente.")
 
     def click_favorite(self):
         self.handle_notification_modal()
+        estado_inicial = self.favorite_button.get_attribute("aria-label")
+        print(f"🎵 Estado inicial: {estado_inicial}")
         self._click_when_visible(self.favorite_button)
-        expect(self.favorite_button).to_have_attribute("aria-pressed", "true")
+        estado_esperado = "Unfavorite" if estado_inicial == "Favorite" else "Favorite"
+        expect(self.favorite_button).to_have_attribute("aria-label", estado_esperado, timeout=8000)
+        print(f"✅ El botón cambió de '{estado_inicial}' a '{estado_esperado}'.")
 
     def click_share(self):
         self.handle_notification_modal()
@@ -230,4 +244,4 @@ class YourFeedPage:
     def click_copy_link(self):
         self.handle_notification_modal()
         self._click_when_visible(self.copy_link_option)
-        self._wait_visible(self.confirm_toast, timeout=8000)
+        self._wait_visible(self.confirm_toast_copyenlacetrack, timeout=8000)

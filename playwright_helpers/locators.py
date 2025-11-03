@@ -28,6 +28,7 @@ def text_exact(txt: str) -> str:
 def text_like(pattern_iregex: str) -> str:
     """Selector por texto (regex case-insensitive)."""
     return f'text=/{pattern_iregex}/i'
+
 def by_role(value: str) -> str:
     return f'[role="{value}"]'
 
