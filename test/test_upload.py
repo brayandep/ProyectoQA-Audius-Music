@@ -85,8 +85,8 @@ def test_TC005_Verificar_que_al_subir_con_espacios_vacios_en_el_campo_Name_se_qu
     upload.Save()
 
 @pytest.mark.functional
-@pytest.mark.xfail(reason="Permite Ingresar caracteres alfanumericos e incluso simbolso en el campo de Track Name")
-def test_TC006_Verificar_no_permita_ingresar_con_caracteres_alfanumericos_o_simbolos_en_el_campo_Name(page_with_session):
+@pytest.mark.xfail(reason="Permite Ingresar masd e 30 caracteres en los campos de tags")
+def test_TC006_Verificar_que_no_permita_tags_que_superen_los_30_caracteres(page_with_session):
     upload = UploadPage(page_with_session)
     upload.open()
     file_path = "resources/audio/demo.mp3"
@@ -97,7 +97,70 @@ def test_TC006_Verificar_no_permita_ingresar_con_caracteres_alfanumericos_o_simb
         nuevo_nombre="The Rock 123123113@@@e112412!#$%&/",
         genero_primera_opcion=True,
         artwork_busqueda="rock",
+        tag_valor="LaamistadesunarelaciónafectivaentredosomáspersonasLaamistadesunarelaciónafectivaentredosomáspersonas.",
+    )
+    page_with_session.wait_for_timeout(5000)
+    upload.Save()
+    assert upload.AssertMensajesLargos("Fix errors to continue your upload."), "❌ No se mostró el mensaje esperado"
+
+@pytest.mark.functional
+def test_TC007_Verificar_que_no_permita_subir_Archivos_que_no_estan_en_formato_mp3o_wav(page_with_session):
+    upload = UploadPage(page_with_session)
+    upload.open()
+    file_path = "resources/audio/prueba.jpg"
+    upload.upload_audio_file(file_path)
+    upload.assert_file_uploaded()
+    assert upload.validar_mensaje("Unsupported File Type"), "❌ No se mostró el mensaje esperado"
+
+
+
+@pytest.mark.functional
+def test_TC008_Verificar_que_no_permita_ingresar_mas_de_64_caracteres_en_el_campo_TrackName(page_with_session):
+    upload = UploadPage(page_with_session)
+    upload.open()
+    file_path = "resources/audio/demo.mp3"
+    upload.upload_audio_file(file_path)
+    upload.assert_file_uploaded()
+    upload.BotonSiguiente()
+    upload.CamposObligatorios(
+        nuevo_nombre="Grupo_Rock- the beatles-stramberryGrupo_Rock- the beatles-stramberryGrupo_Rock- the beatles-stramberryGrupo_Rock- the beatles-stramberry",
+        genero_primera_opcion=True,
+        artwork_busqueda="rock",
         tag_valor="juegos",
+    )
+    page_with_session.wait_for_timeout(5000)
+    upload.Save()
+
+@pytest.mark.functional
+def test_TC009_Verificar_que_permita_ingresar_al_menos_1caracter_en_el_campo_TrackName_como_valido(page_with_session):
+    upload = UploadPage(page_with_session)
+    upload.open()
+    file_path = "resources/audio/demo.mp3"
+    upload.upload_audio_file(file_path)
+    upload.assert_file_uploaded()
+    upload.BotonSiguiente()
+    upload.CamposObligatorios(
+        nuevo_nombre="a",
+        genero_primera_opcion=True,
+        artwork_busqueda="rock",
+        tag_valor="juegos",
+    )
+    page_with_session.wait_for_timeout(5000)
+    upload.Save()
+
+@pytest.mark.functional
+def test_TC010_Verificar_como_minimo_1_caracter_de_tamaño_ene_el_campo_Tags_para_ser_Valido(page_with_session):
+    upload = UploadPage(page_with_session)
+    upload.open()
+    file_path = "resources/audio/demo.mp3"
+    upload.upload_audio_file(file_path)
+    upload.assert_file_uploaded()
+    upload.BotonSiguiente()
+    upload.CamposObligatorios(
+        nuevo_nombre="The Rock - Green day",
+        genero_primera_opcion=True,
+        artwork_busqueda="rock",
+        tag_valor="a",
     )
     page_with_session.wait_for_timeout(5000)
     upload.Save()

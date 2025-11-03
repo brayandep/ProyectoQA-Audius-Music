@@ -237,3 +237,14 @@ class UploadPage:
         except Exception:
             print(f"❌ No se encontró el mensaje: '{texto}'")
             return False
+        
+    def AssertMensajesLargos(self, texto: str, timeout=5000) -> bool:
+   
+        try:
+            locator = self.page.locator(f"text={texto}")
+            expect(locator).to_be_visible(timeout=timeout)
+            print(f"✅ Mensaje visible: '{texto}'")
+            return True
+        except Exception:
+            print(f"❌ No se encontró el mensaje: '{texto}'")
+            return False
