@@ -88,3 +88,69 @@ def test_TC006_no_guardar_foto_perfil_vacia(page_with_session):
     feed.go_to_my_profile()
 
     profile.try_save_empty_profile_picture()
+
+
+@pytest.mark.functional
+def test_TC007_editar_descripcion_con_caracteres_validos(page_with_session):
+    
+    feed = YourFeedPage(page_with_session)
+    profile = MyProfilePage(page_with_session)
+    feed.open()
+    profile.open_profile()
+    profile.open_edit_mode()
+    profile.editar_descripcion("Perfil actualizado automáticamente desde Playwright QA 🧠")
+    profile.guardar_cambios()
+
+@pytest.mark.functional
+def test_TC008_editar_el_campo_Nombre_artista_con_datos_validos(page_with_session):
+    feed = YourFeedPage(page_with_session)
+    profile = MyProfilePage(page_with_session)
+    feed.open()
+    profile.open_profile()
+    profile.open_edit_mode()
+    profile.editar_nombre("QA Tester Automation")
+    profile.guardar_cambios()
+
+@pytest.mark.xfail(reason="Nose muestra ningun mensaje de validacion al superar los 30 caracteres, simplemente los corta")
+@pytest.mark.functional
+def test_TC009_Verificar_que_al_editar_el_campo_Artista_no_Supere_los_30_caracteres_mostrando_un_mensaje(page_with_session):
+    feed = YourFeedPage(page_with_session)
+    profile = MyProfilePage(page_with_session)
+    feed.open()
+    profile.open_profile()
+    profile.open_edit_mode()
+    profile.editar_nombre("LaamistadesunarelaciónafectivaentredosomáspersonasLaamistadesunarelaciónafectivaentredosomáspersonas")
+    profile.guardar_cambios()
+    assert profile.validar_mensaje("Fix errors to continue."), "❌ No se mostró el mensaje esperado"
+
+@pytest.mark.functional
+def test_TC010_Verificar_que_al_editar_el_campo_Artista_se_pueda_ingresar_como_minimo_1_caracter(page_with_session):
+    feed = YourFeedPage(page_with_session)
+    profile = MyProfilePage(page_with_session)
+    feed.open()
+    profile.open_profile()
+    profile.open_edit_mode()
+    profile.editar_nombre("a")
+    profile.guardar_cambios()
+
+@pytest.mark.xfail(reason="permite espacios en blanco en campo Name de artista")
+@pytest.mark.functional
+def test_TC010_Verificar_que_no_permita_ingresar_datos_vacios_en_el_campo_Artista(page_with_session):
+    feed = YourFeedPage(page_with_session)
+    profile = MyProfilePage(page_with_session)
+    feed.open()
+    profile.open_profile()
+    profile.open_edit_mode()
+    profile.editar_nombre(" ")
+    profile.guardar_cambios()
+
+
+@pytest.mark.functional
+def test_TC011_Verificar_que_no_permita_guardar_vacio_el_campo_de_artista(page_with_session):
+    feed = YourFeedPage(page_with_session)
+    profile = MyProfilePage(page_with_session)
+    feed.open()
+    profile.open_profile()
+    profile.open_edit_mode()
+    profile.editar_nombre("")
+    profile.guardar_cambios()

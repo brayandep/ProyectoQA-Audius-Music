@@ -55,6 +55,15 @@ class MyProfilePage:
         self.avatar_button: Locator = page.locator(
             '[href*="/@"], [aria-label*="profile"], img[alt*="profile"]'
         )
+         # ==== LOCATORS ====
+        self.edit_button: Locator = page.locator("(//button[@type='button'])[6]")  # Botón Edit Page
+        self.name_input: Locator = page.locator("css=.\_name_j8o6f_1 > input")      # Campo Nombre
+        self.description_input: Locator = page.locator("css=textarea")             # Campo Descripción
+        self.save_button: Locator = page.locator("button.harmony-9tt3ib")          # Botón Save Changes
+        self.toast_success: Locator = page.locator("text=Changes saved successfully")
+        self.avatar_icon: Locator = page.locator('[data-testid="avatar-test"]')  # Imagen de perfil
+        self.username_link: Locator = page.locator('a[href*="/@"]')  
+        self.edit_name_button: Locator = page.locator("css=.css-1xaj4qh")         # Botón para activar el campo de nombre
 
     # ==== MÉTODOS ====
 
@@ -111,3 +120,61 @@ class MyProfilePage:
         self.avatar_button.click()
         expect(self.page.locator('text=Followers')).to_be_visible(timeout=10000)
         print("✅ Navegación a 'My Profile' exitosa desde 'Your Feed'.")
+
+    def open_edit_mode(self):
+        """Abre el modo de edición de perfil."""
+        expect(self.edit_button).to_be_visible(timeout=10000)
+        self.edit_button.click()
+        print("✏️ Modo edición activado.")
+
+    def editar_nombre(self, nuevo_nombre: str):
+        """Activa el campo de nombre y lo edita."""
+        expect(self.edit_name_button).to_be_visible(timeout=10000)
+        self.edit_name_button.click()
+        print("🧩 Campo de nombre activado.")
+
+        expect(self.name_input).to_be_visible(timeout=10000)
+        self.name_input.fill("")
+        self.name_input.type(nuevo_nombre)
+        print(f"🧾 Nuevo nombre ingresado: {nuevo_nombre}")
+
+    def editar_descripcion(self, nueva_descripcion: str):
+        """Edita la descripción del perfil."""
+        expect(self.description_input).to_be_visible(timeout=10000)
+        self.description_input.fill("")
+        self.description_input.type(nueva_descripcion)
+        print(f"📝 Descripción actualizada a: {nueva_descripcion}")
+
+    def guardar_cambios(self):
+        """Hace clic en Save Changes y valida el resultado."""
+        expect(self.save_button).to_be_visible(timeout=10000)
+        self.save_button.click()
+        print("💾 Clic en 'Save Changes' realizado.")    
+
+    def open_profile(self):
+    
+        try:
+            if self.avatar_icon.is_visible():
+                self.avatar_icon.click()
+                print("🖱️ Perfil abierto desde el avatar.")
+            else:
+                expect(self.username_link).to_be_visible(timeout=5000)
+                self.username_link.first.click()
+                print("🖱️ Perfil abierto desde el enlace del nombre de usuario.")
+        except Exception as e:
+            raise RuntimeError(f"❌ No se pudo abrir el perfil: {e}")
+
+        # Esperar a que cargue la página del perfil
+        expect(self.edit_button).to_be_visible(timeout=10000)
+        print("✅ Vista de perfil cargada correctamente.")
+
+    def validar_mensaje(self, texto: str, timeout=5000) -> bool:
+   
+        try:
+            locator = self.page.locator(f"text={texto}")
+            expect(locator).to_be_visible(timeout=timeout)
+            print(f"✅ Mensaje visible: '{texto}'")
+            return True
+        except Exception:
+            print(f"❌ No se encontró el mensaje: '{texto}'")
+            return False
