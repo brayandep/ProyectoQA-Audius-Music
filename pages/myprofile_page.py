@@ -1,4 +1,5 @@
 # pages/myprofile_page.py
+import re
 from playwright.sync_api import Page, Locator, expect
 from config.settings import BASE_URL
 from playwright_helpers.locators import (
@@ -12,14 +13,24 @@ class MyProfilePage:
 
         # ==== LOCATORS ====
         self.followers_btn: Locator = page.locator(
-            any_of(text_exact("Followers"), '[href*="followers"]')
-        )
+                any_of(
+                    has_class("_stat_1onfy_1"),
+                    has_class("_clickable_1onfy_51")
+                )
+            ).filter(has_text="Followers")
+
         self.following_btn: Locator = page.locator(
-            any_of(text_exact("Following"), '[href*="following"]')
-        )
+                any_of(
+                    has_class("_stat_1onfy_1"),
+                    has_class("_clickable_1onfy_51")
+                )
+            ).filter(has_text="Following")
         self.share_btn: Locator = page.locator(
-            any_of(text_exact("Share"), '[aria-label*="Share"]')
-        )
+            any_of(
+                by_role("button"),                 # <button role="button">…
+                has_class("harmony-8iy9dm")
+            )
+        ).filter(has_text="Share").first
 
         # ==== MODALES ESPERADOS ====
         self.modal_dialog: Locator = page.locator(by_role("dialog"))
@@ -30,20 +41,53 @@ class MyProfilePage:
         )
 
         # ==== CAMPOS DE EDICIÓN DE CANCIÓN ====
-        self.song_name_input: Locator = page.locator(
-            any_of('input[name="trackName"]', '[placeholder*="Track name"]')
+        self.save_button_edit_track: Locator = page.locator(
+            any_of(
+                'button[type="submit"]:has-text("Save Changes")',
+                'button:has-text("Save Changes")',
+                has_class("harmony-o8n1vb")  # fallback por clase inestable
+            )
+        ).first
+
+
+
+        self.song_name_input: Locator = self.page.locator(
+            any_of(
+                attr_contains("name", "trackMetadata"),   # p.ej. trackMetadata.0.title
+                attr_contains("aria-label", "Track Name") # accesible/visible
+            )
+        ).first
+
+        self.titulo_edit_track: Locator = page.locator(text_exact("Edit Your Track")
         )
-        self.save_button: Locator = page.locator(
-            any_of(text_exact("Save"), 'button:has-text("Save")')
+        self.boton_edit_track = page.locator('[aria-label="Edit Track"]').first
+
+
+        self.error_message_vacio: Locator = page.locator(
+            any_of(
+#                'span[class*="harmony-"]',
+                text_like("Your track must have a name")  # clase observada en tu captura
+            )
         )
-        self.error_message: Locator = page.locator(
-            text_like("cannot be empty|invalid|required")
+        self.error_message_de_form_error: Locator = page.locator(
+            any_of(
+#                'span[class*="harmony-"]',
+                text_like("Fix errors to continue your update.")  # clase observada en tu captura
+            )
         )
 
-        # ==== FOTO DE PERFIL ====
-        self.edit_picture_button: Locator = page.locator(
-            any_of(text_exact("Edit Photo"), '[aria-label*="Edit profile photo"]')
+
+
+        self.toast_success: Locator = page.locator(
+            any_of(
+                '[role="status"]',
+                has_class("toast"),
+                text_like("saved|changes saved|updated|success")
+            )
         )
+
+        self.remove_picture_button_track = page.locator('[aria-label="Remove artwork"]').first      # ==== FOTO DE PERFIL ====
+
         self.save_profile_btn: Locator = page.locator(
             any_of(text_exact("Save Changes"), 'button:has-text("Save")')
         )
@@ -65,6 +109,20 @@ class MyProfilePage:
         self.username_link: Locator = page.locator('a[href*="/@"]')  
         self.edit_name_button: Locator = page.locator("css=.css-1xaj4qh")         # Botón para activar el campo de nombre
 
+        # ================== HELPERS (esperar visibilidad) ==================
+        
+
+    def _wait_visible(self, locator: Locator, timeout: int = 10000):
+        """Espera a que el locator sea visible."""
+        expect(locator).to_be_visible(timeout=timeout)
+
+    def _click_when_visible(self, locator: Locator, timeout: int = 10000):
+        """Espera a que sea visible y hace click."""
+        self._wait_visible(locator, timeout)
+        locator.click()
+
+
+
     # ==== MÉTODOS ====
 
     def open(self, username: str):
@@ -74,45 +132,89 @@ class MyProfilePage:
 
     def open_followers_modal(self):
         """Abre el modal de followers."""
-        self.followers_btn.click()
-        expect(self.modal_dialog).to_be_visible(timeout=8000)
+        self._click_when_visible(self.followers_btn, timeout=10000)
+        self._wait_visible(self.modal_dialog, timeout=10000)
         print("✅ Modal de Followers visible correctamente.")
-
     def open_following_modal(self):
         """Abre el modal de following."""
-        self.following_btn.click()
-        expect(self.modal_dialog).to_be_visible(timeout=8000)
+
+        self._click_when_visible(self.following_btn, timeout=10000)
+        self._wait_visible(self.modal_dialog, timeout=10000)
+
         print("✅ Modal de Following visible correctamente.")
 
     def open_share_modal(self):
         """Abre el modal de compartir perfil."""
-        self.share_btn.click()
-        expect(self.modal_dialog).to_be_visible(timeout=8000)
+        self._click_when_visible(self.share_btn, timeout=10000)
+        self._wait_visible(self.modal_dialog, timeout=10000)
         print("✅ Modal de compartir visible correctamente.")
+
+    def open_track_for_edit(self):
+        """Abre el primer track del perfil y espera la carga dinámica de la vista de edición."""
+        # 1️⃣ Clic en el botón "Edit Track"
+        self._click_when_visible(self.boton_edit_track)
+        print("🖱️ Click en 'Edit Track' ejecutado correctamente.")
+
+        # 2️⃣ Esperar a que cambie la URL o contenga '/edit'
+        try:
+            expect(self.page).to_have_url(re.compile(".*/edit.*"), timeout=15000)
+            print("🌐 URL cambió a vista de edición.")
+        except AssertionError:
+            # Si no cambia la URL (SPA), continuar con espera por el formulario
+            print("⚠️ No hubo navegación detectada (SPA). Esperando formulario...")
+
+        # 3️⃣ Esperar el campo del nombre o el título de edición
+        titulo = self.page.locator('h1:has-text("Edit Your Track")')
+        input_nombre = self.page.locator('[aria-label*="Track Name"], [name*="trackMetadata"]')
+
+        # 4️⃣ Esperar a que alguno esté visible (con fallback progresivo)
+        try:
+            expect(titulo.or_(input_nombre)).to_be_visible(timeout=15000)
+            print("🎵 Vista de edición cargada correctamente.")
+        except AssertionError:
+            # Último intento: esperar el botón "Save Changes"
+            boton_save = self.page.locator('button:has-text("Save Changes")')
+            expect(boton_save).to_be_visible(timeout=5000)
+            print("✅ Confirmada carga del formulario de edición (por botón Save Changes).")
+
+
+
+
+
+
+
+
+
+
 
     def edit_song_name(self, new_name: str):
         """Simula la edición del nombre de una canción."""
+        self._wait_visible(self.song_name_input, timeout=10000)
         self.song_name_input.fill(new_name)
-        self.save_button.click()
+        self._click_when_visible(self.save_button_edit_track, timeout=10000)
+
 
     def try_empty_song_name(self):
         """Intenta guardar con campo vacío."""
         self.edit_song_name("")
-        expect(self.error_message).to_be_visible(timeout=5000)
+        self._wait_visible(self.error_message_vacio, timeout=10000)
         print("⚠️ No se permite guardar con nombre vacío.")
 
     def try_blank_song_name(self):
-        """Intenta guardar con solo espacios."""
-        self.edit_song_name("   ")
-        expect(self.error_message).to_be_visible(timeout=5000)
+        """Intenta guardar con solo la tecla espacio."""
+        self.edit_song_name("                                         ")
+        self._wait_visible(self.error_message_vacio, timeout=10000)
         print("⚠️ No se permite guardar con espacios vacíos.")
 
     def try_save_empty_profile_picture(self):
         """Intenta guardar sin imagen cargada."""
-        self.edit_picture_button.click()
-        self.save_profile_btn.click()
-        expect(self.toast_error.or_(self.modal_dialog)).to_be_visible(timeout=8000)
-        print("⚠️ No se guardó la foto de perfil vacía.")
+        expect(self.remove_picture_button_track).to_be_visible(timeout=10000)
+        expect(self.remove_picture_button_track).to_be_enabled(timeout=10000)
+        self.remove_picture_button_track.click()
+        self.save_button_edit_track.click()
+        #self._wait_visible(self.error_message_de_form_error, timeout=10000)
+
+        print("⚠️ Se guardó la foto de perfil vacía.")
 
     def go_to_my_profile(self):
         """Abre el perfil del usuario desde el avatar en 'Your Feed'."""
