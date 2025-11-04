@@ -8,7 +8,7 @@ from pages.myprofile_page import MyProfilePage
 # Flujo: Your Feed → clic en avatar → Perfil → acciones
 # ===========================================================
 
-@pytest.mark.functional
+@pytest.mark.run
 def test_TC001_abrir_modal_followers(page_with_session):
     """Verifica que al hacer clic en 'Followers' se abra el modal correspondiente."""
     feed = YourFeedPage(page_with_session)
@@ -16,7 +16,7 @@ def test_TC001_abrir_modal_followers(page_with_session):
 
     feed.open()
     feed.handle_notification_modal()
-    feed.go_to_my_profile()
+    profile.open_profile()
 
     profile.open_followers_modal()
 
@@ -29,7 +29,7 @@ def test_TC002_abrir_modal_following(page_with_session):
 
     feed.open()
     feed.handle_notification_modal()
-    feed.go_to_my_profile()
+    profile.open_profile()
 
     profile.open_following_modal()
 
@@ -42,7 +42,7 @@ def test_TC003_abrir_modal_share_profile(page_with_session):
 
     feed.open()
     feed.handle_notification_modal()
-    feed.go_to_my_profile()
+    profile.open_profile()
 
     profile.open_share_modal()
 
@@ -59,7 +59,7 @@ def test_TC004_no_guardar_nombre_vacio(page_with_session):
 
     feed.open()
     feed.handle_notification_modal()
-    feed.go_to_my_profile()
+    profile.open_profile()
 
     profile.try_empty_song_name()
 
@@ -72,7 +72,7 @@ def test_TC005_no_guardar_nombre_con_espacios(page_with_session):
 
     feed.open()
     feed.handle_notification_modal()
-    feed.go_to_my_profile()
+    profile.open_profile()
 
     profile.try_blank_song_name()
 
@@ -85,7 +85,7 @@ def test_TC006_no_guardar_foto_perfil_vacia(page_with_session):
 
     feed.open()
     feed.handle_notification_modal()
-    feed.go_to_my_profile()
+    profile.open_profile()
 
     profile.try_save_empty_profile_picture()
 
