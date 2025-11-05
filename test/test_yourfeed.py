@@ -8,7 +8,6 @@ from pages.yourfeed_page import YourFeedPage
 # ============================================================
 
 @allure.feature("Your Feed")
-@allure.story("Visualización inicial del módulo")
 @allure.severity(allure.severity_level.NORMAL)
 @allure.title("TC001 - Verificar título 'Your Feed' visible correctamente")
 @pytest.mark.functional
@@ -27,7 +26,6 @@ def test_TC001_titulo_your_feed(page_with_session):
 
 
 @allure.feature("Your Feed")
-@allure.story("Reproducción de música")
 @allure.severity(allure.severity_level.CRITICAL)
 @allure.title("TC002 - Reproducir canción desde una tarjeta y mostrar mini-player")
 @pytest.mark.functional
@@ -46,7 +44,6 @@ def test_TC002_reproduccion_en_mini_player(page_with_session):
 
 
 @allure.feature("Your Feed")
-@allure.story("Interacciones sociales")
 @allure.severity(allure.severity_level.NORMAL)
 @allure.title("TC003 - Marcar y desmarcar Repost correctamente")
 @pytest.mark.functional
@@ -62,7 +59,6 @@ def test_TC003_marcar_repost(page_with_session):
 
 
 @allure.feature("Your Feed")
-@allure.story("Menú de opciones de canción")
 @allure.severity(allure.severity_level.NORMAL)
 @allure.title("TC004 - Desplegar menú de opciones correctamente")
 @pytest.mark.functional
@@ -78,7 +74,6 @@ def test_TC004_desplegar_opciones(page_with_session):
 
 
 @allure.feature("Your Feed")
-@allure.story("Gestión de playlist")
 @allure.severity(allure.severity_level.CRITICAL)
 @allure.title("TC005 - Crear una nueva playlist desde el menú")
 @pytest.mark.functional
@@ -95,7 +90,6 @@ def test_TC005_crear_playlist(page_with_session):
 
 
 @allure.feature("Your Feed")
-@allure.story("Marcado de favoritos")
 @allure.severity(allure.severity_level.NORMAL)
 @allure.title("TC006 - Marcar canción como favorita correctamente")
 @pytest.mark.functional
@@ -111,7 +105,6 @@ def test_TC006_marcar_favorito(page_with_session):
 
 
 @allure.feature("Your Feed")
-@allure.story("Compartir contenido")
 @allure.severity(allure.severity_level.NORMAL)
 @allure.title("TC007 - Mostrar opciones de compartir correctamente")
 @pytest.mark.functional
@@ -128,7 +121,6 @@ def test_TC007_mostrar_opciones_de_compartir(page_with_session):
 
 
 @allure.feature("Your Feed")
-@allure.story("Mensajes directos")
 @allure.severity(allure.severity_level.MINOR)
 @allure.title("TC008 - Abrir buscador de mensajes directos desde Share")
 @pytest.mark.functional
@@ -146,7 +138,6 @@ def test_TC008_abrir_direct_message(page_with_session):
 
 
 @allure.feature("Your Feed")
-@allure.story("Integración externa (Embed)")
 @allure.severity(allure.severity_level.NORMAL)
 @allure.title("TC009 - Abrir modal 'Embed' correctamente")
 @pytest.mark.functional
@@ -163,7 +154,6 @@ def test_TC009_abrir_modal_embed(page_with_session):
 
 
 @allure.feature("Your Feed")
-@allure.story("Compartir canciones")
 @allure.severity(allure.severity_level.NORMAL)
 @allure.title("TC010 - Copiar link de canción correctamente")
 @pytest.mark.functional

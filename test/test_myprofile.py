@@ -11,7 +11,6 @@ from pages.myprofile_page import MyProfilePage
 
 
 @allure.feature("My Profile")
-@allure.story("Visualización de seguidores")
 @allure.severity(allure.severity_level.NORMAL)
 @allure.title("TC001 - Abrir modal de Followers")
 @pytest.mark.functional
@@ -32,7 +31,6 @@ def test_TC001_abrir_modal_followers(page_with_session):
 
 
 @allure.feature("My Profile")
-@allure.story("Visualización de seguidos")
 @allure.severity(allure.severity_level.NORMAL)
 @allure.title("TC002 - Abrir modal de Following")
 @pytest.mark.functional
@@ -50,7 +48,6 @@ def test_TC002_abrir_modal_following(page_with_session):
 
 
 @allure.feature("My Profile")
-@allure.story("Compartir perfil")
 @allure.severity(allure.severity_level.NORMAL)
 @allure.title("TC003 - Abrir modal de compartir perfil")
 @pytest.mark.functional
@@ -66,7 +63,6 @@ def test_TC003_abrir_modal_share_profile(page_with_session):
 
 
 @allure.feature("My Profile")
-@allure.story("Validación de edición de tracks")
 @allure.severity(allure.severity_level.CRITICAL)
 @allure.title("TC004 - No guardar nombre vacío en track")
 @pytest.mark.functional
@@ -83,7 +79,6 @@ def test_TC004_no_guardar_nombre_vacio(page_with_session):
 
 
 @allure.feature("My Profile")
-@allure.story("Validación de nombre con espacios")
 @allure.severity(allure.severity_level.MINOR)
 @allure.title("TC005 - No guardar nombre con solo espacios")
 @pytest.mark.functional
@@ -101,7 +96,6 @@ def test_TC005_no_guardar_nombre_con_espacios(page_with_session):
 
 
 @allure.feature("My Profile")
-@allure.story("Foto de perfil del track")
 @allure.severity(allure.severity_level.CRITICAL)
 @allure.title("TC006 - No guardar imagen vacía en track")
 @pytest.mark.functional
@@ -118,7 +112,6 @@ def test_TC006_guardar_foto_perfil_de_track_vacia(page_with_session):
 
 
 @allure.feature("My Profile")
-@allure.story("Edición de descripción de usuario")
 @allure.severity(allure.severity_level.NORMAL)
 @allure.title("TC007 - Editar descripción con caracteres válidos")
 @pytest.mark.functional
@@ -135,7 +128,6 @@ def test_TC007_editar_descripcion_con_caracteres_validos(page_with_session):
 
 
 @allure.feature("My Profile")
-@allure.story("Edición de campo Nombre/Artista")
 @allure.severity(allure.severity_level.NORMAL)
 @allure.title("TC008 - Editar nombre del artista con datos válidos")
 @pytest.mark.functional
@@ -152,7 +144,6 @@ def test_TC008_editar_el_campo_Nombre_artista_con_datos_validos(page_with_sessio
 
 
 @allure.feature("My Profile")
-@allure.story("Validación de longitud máxima en campo Artista")
 @allure.severity(allure.severity_level.MINOR)
 @allure.title("TC009 - No superar 30 caracteres en campo Artista")
 @pytest.mark.functional
@@ -173,7 +164,6 @@ def test_TC009_Verificar_que_al_editar_el_campo_Artista_no_Supere_los_30_caracte
 
 
 @allure.feature("My Profile")
-@allure.story("Validación mínima del campo Artista")
 @allure.severity(allure.severity_level.NORMAL)
 @allure.title("TC010 - Permitir mínimo 1 caracter en campo Artista")
 @pytest.mark.functional
@@ -190,7 +180,6 @@ def test_TC010_Verificar_que_al_editar_el_campo_Artista_se_pueda_ingresar_como_m
 
 
 @allure.feature("My Profile")
-@allure.story("Validación de campos vacíos")
 @allure.severity(allure.severity_level.MINOR)
 @allure.title("TC011 - No permitir guardar campo Artista vacío")
 @pytest.mark.functional
