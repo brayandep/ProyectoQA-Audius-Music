@@ -1,12 +1,60 @@
 # tests/conftest.py
-import os
-import pathlib
-import pytest
+import os, logging, pathlib, allure, pytest
+
+
+
 from dotenv import load_dotenv
 from playwright.sync_api import Playwright, expect
 
 # Config del proyecto
 from config.settings import SIGNIN_URL, FEED_URL
+LOGS_DIR = pathlib.Path("reports") / "logs"
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+
+@pytest.fixture(autouse=True)
+def test_logger(request):
+    """
+    Crea un logger por test (archivo propio) y lo adjunta a Allure al finalizar.
+    Uso en tests: recibe el fixture `test_logger` y llama .info/.warning/.error
+    """
+    test_name = request.node.name.replace("/", "_")
+    log_path = LOGS_DIR / f"{test_name}.log"
+
+    logger = logging.getLogger(test_name)
+    logger.setLevel(logging.INFO)
+    logger.propagate = False  # evita duplicados en consola
+
+    # limpia handlers previos si los hubiera
+    for h in list(logger.handlers):
+        logger.removeHandler(h)
+
+    fh = logging.FileHandler(log_path, encoding="utf-8")
+    sh = logging.StreamHandler()
+    fmt = logging.Formatter("%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+                            datefmt="%H:%M:%S")
+    fh.setFormatter(fmt)
+    sh.setFormatter(fmt)
+    logger.addHandler(fh)
+    logger.addHandler(sh)
+
+    yield logger
+
+    # adjunta a Allure y limpia
+    try:
+        if log_path.exists():
+            allure.attach.file(str(log_path), name=f"Logs_{test_name}",
+                               attachment_type=allure.attachment_type.TEXT)
+    finally:
+        logger.removeHandler(fh)
+        logger.removeHandler(sh)
+        fh.close()
+
+
+
+
+
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Carga .env
