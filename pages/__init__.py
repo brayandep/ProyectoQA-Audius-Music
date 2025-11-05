@@ -1,0 +1,1 @@
+# Utilidades comunes (waits, asserts)

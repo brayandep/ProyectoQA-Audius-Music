@@ -15,4 +15,5 @@ report.html
 # OS Files
 .DS_Store
 storageState.json
-__init__.py
+
+reports/

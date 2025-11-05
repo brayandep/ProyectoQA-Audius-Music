@@ -18,7 +18,7 @@ if not USER_EMAIL or not USER_PASSWORD:
     raise RuntimeError("Faltan USER_EMAIL o USER_PASSWORD en .env")
 
 # Ajustes ejecutables por ENV (con defaults razonables)
-HEADLESS = os.getenv("PW_HEADLESS", "false").lower() == "true"  # por defecto visible
+HEADLESS = os.getenv("HEADLESS", "false").lower() == "true"  # por defecto visible
 SLOWMO = int(os.getenv("PW_SLOWMO", "150"))
 UA = os.getenv(
     "PW_USER_AGENT",
@@ -128,7 +128,7 @@ def context(playwright: Playwright, storage_state, request):
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# 3) Página por test (API simple en tus tests)
+# 3) Página por test 
 # ──────────────────────────────────────────────────────────────────────────────
 @pytest.fixture(scope="function")
 def page_with_session(context, request):
