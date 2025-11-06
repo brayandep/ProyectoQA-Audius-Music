@@ -15,4 +15,5 @@ report.html
 # OS Files
 .DS_Store
 storageState.json
+
 reports/

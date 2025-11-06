@@ -1,69 +1,247 @@
 # pages/yourfeed_page.py
-from playwright.sync_api import Page, Locator, expect
+from playwright.sync_api import Page, Locator, expect, TimeoutError as PlaywrightTimeoutError
 from config.settings import FEED_URL
+from playwright_helpers.locators import (
+    by_testid, has_testid, has_class, attr_contains, any_of, text_exact, text_like,by_role
+)
+
 
 class YourFeedPage:
     def __init__(self, page: Page):
         self.page = page
+        self.page.set_default_timeout(10000)  # timeout base para todas las esperas
 
-        # ==== LOCATORS ====
-        self.title: Locator = page.get_by_role("heading", name="Your Feed")
-        self.card: Locator = page.locator('[data-testid="trackTile"], [class*="track"]').first
-        self.play_button: Locator = page.locator('button[aria-label*="Play"]').first
-        self.repost_button: Locator = page.locator('button[aria-label*="Repost"]').first
-        self.favorite_button: Locator = page.locator('button[aria-label*="Favorite"]').first
-        self.more_options_button: Locator = page.locator('button[aria-label*="More options"], button:has(svg)')
-        self.add_playlist_option: Locator = page.get_by_text("Add to Playlist")
-        self.new_playlist_option: Locator = page.get_by_text("New Playlist")
-        self.share_option: Locator = page.get_by_text("Share")
-        self.direct_message_option: Locator = page.get_by_text("Direct Message")
-        self.embedded_option: Locator = page.get_by_text("Embed")
-        self.copy_link_option: Locator = page.get_by_text("Copy Link")
+        # ==== LOCATORS (robustos y centralizados) ====
 
-        # Elementos esperados tras acciones
-        self.mini_player: Locator = page.locator('[class*="miniPlayer"], [data-testid*="playerBar"]')
-        self.confirm_toast: Locator = page.locator('text=added to playlist, copied, etc')
-        self.embed_modal: Locator = page.locator('[role="dialog"] >> text=Embed')
-        self.search_dm: Locator = page.locator('input[placeholder*="Search"], [aria-label*="Search"]')
+        # Título principal del feed
+        self.title: Locator = page.locator(text_exact("Your Feed"))
 
-    # ==== MÉTODOS ====
+        # Tarjeta (track)
+        self.card: Locator = page.locator(
+            any_of(
+                #by_testid("trackTile"), 
+                has_class("artworkWrapper"))
+        ).first
+        #imagen dentro de tarjeta
+        self.card_artwork = self.card.locator(
+            any_of(
+            has_class("artwork"),
+            has_testid("dynamic-image-first"),
+            has_testid("dynamic-image-second")
+         )
+        ).first
+
+        # Botón Play / Pause (el SVG con <title>Play/Pause)
+        self.card_play_btn = self.card.locator(
+           any_of(
+            has_class("artworkWrapper"),
+            has_class("artworkIcon"),
+            "svg "
+              )
+        ).first
+
+        # Repost / Favorite en la tarjeta
+        self.repost_button: Locator = page.locator(
+         any_of(
+             has_testid("repost"),
+             attr_contains("aria-label", "Repost"),
+            attr_contains("aria-label", "Unrepost")
+                )
+            ).first
+        self.favorite_button: Locator = page.locator(
+            any_of(
+             has_testid("repost"),
+             attr_contains("aria-label", "Favorite"),
+             attr_contains("aria-label", "Unfavorite")
+            )
+        ).first
+
+        # Menú "más opciones"
+        self.more_options_button: Locator = page.locator(
+            any_of(
+                attr_contains("aria-label", "More options"),
+                #has_testid("more")
+                #"button:has(svg)"
+            )
+        ).first
+
+        # Opciones del menú desplegable
+        self.popup_menu = page.locator(any_of(
+            has_class("popup"),
+            by_role("menu")
+              )
+        ).first
+        self.add_playlist_option: Locator   = page.locator(text_exact("Add To Playlist"))
+        self.new_playlist_option: Locator   = page.locator(text_exact("New Playlist"))
+        self.share_option: Locator          = page.locator(text_exact("Share"))
+        self.direct_message_option: Locator = page.locator(text_exact("Direct Message"))
+        self.embedded_option: Locator       = page.locator(text_exact("Embed"))
+        self.copy_link_option: Locator      = page.locator(text_exact("Copy Link"))
+
+        # Elementos/feedback tras accionesclear
+        
+        self.mini_player: Locator = page.locator(
+            any_of(has_class("_playBarControls_1o5hm_30"))
+            #any_of(by_testid("playerBar"), has_class("_playBarControls_1o5hm_30"), has_class("playBar"))
+        )
+        # Botones de estado del mini-player (scoped al mini_player)
+        self.mini_play_btn  = self.mini_player.locator(
+         any_of(has_testid("play"), attr_contains("aria-label", "Play"), has_class("play"))
+            ).first
+        self.mini_pause_btn = self.mini_player.locator(
+            any_of(attr_contains("aria-label", "pause track"))
+          #any_of(has_testid("pause"), attr_contains("aria-label", "pause track"), has_class("pause"))
+        ).first
+
+
+        self.confirm_toast: Locator = page.locator(
+            any_of(
+                 has_class("toast"),
+                '[role="status"]',
+                 has_class("text"),                      # para clases tipo "_text_1x8em_1"
+                 text_like("Playlist Created|copied|added|saved")
+             )
+        )
+        self.confirm_toast_newplaylist = page.locator(text_like("Playlist Created"))
+        self.confirm_toast_copyenlacetrack = page.locator(text_like("Copied Link to Track"))
+        self.embed_modal: Locator = page.locator('[role="dialog"]').filter(
+            has=page.locator(text_exact("Embed Track"))
+        )
+        self.search_dm: Locator = page.locator(
+            any_of(attr_contains("aria-labelledby", "modal-23-title"), attr_contains("aria-label", "Search Users"))
+        )
+
+        # === Modal de notificaciones ===
+        self.modal_title = page.locator('text="DON\'T MISS A THING!"')
+        self.modal_dialog = page.locator('[role="dialog"]')
+        self.maybe_later_btn = page.get_by_role("button", name="MAYBE LATER")
+        self.enable_btn     = page.get_by_role("button", name="ENABLE BROWSER NOTIFICATIONS")
+
+        # ================== HELPERS (esperar visibilidad) ==================
+        
+        
+
+
+
+
+    def _wait_visible(self, locator: Locator, timeout: int = 10000):
+        """Espera a que el locator sea visible."""
+        expect(locator).to_be_visible(timeout=timeout)
+
+    def _click_when_visible(self, locator: Locator, timeout: int = 10000):
+        """Espera a que sea visible y hace click."""
+        self._wait_visible(locator, timeout)
+        locator.click()
+
+    # =========================== FLUJOS ================================
+
     def open(self):
+        """Abre la página Your Feed y maneja el modal si aparece."""
         self.page.goto(FEED_URL)
-        expect(self.title).to_be_visible(timeout=10000)
+        self._wait_visible(self.title, timeout=10000)
+        # Asegúrate de que haya al menos una tarjeta cargada antes de seguir
+        expect(self.card).to_be_attached(timeout=10000)
+        self.handle_notification_modal()
+
+    def handle_notification_modal(self):
+        """Cierra el modal de notificaciones si aparece (espera inteligente)."""
+        try:
+            self.modal_title.wait_for(state="visible", timeout=8000)  # solo si aparece
+            print("🔔 Modal detectado, intentando cerrarlo...")
+
+            if self.maybe_later_btn.is_visible():
+                self._click_when_visible(self.maybe_later_btn)
+                print("🔕 Modal cerrado con 'MAYBE LATER'.")
+            elif self.enable_btn.is_visible():
+                self._click_when_visible(self.enable_btn)
+                print("🔔 Modal cerrado con 'ENABLE BROWSER NOTIFICATIONS'.")
+            else:
+                self._click_when_visible(self.modal_dialog.locator("button").first)
+                print("⚠️ Modal cerrado mediante clic genérico.")
+
+            expect(self.modal_dialog).to_be_hidden(timeout=5000)
+        except PlaywrightTimeoutError:
+            print("✅ No apareció el modal de notificaciones.")
+        except Exception as e:
+            print(f"⚠️ Error al manejar el modal: {e}")
+
+    # ======================= ACCIONES (todas con espera visible) =======================
 
     def play_from_card(self):
-        self.card.click()
-        expect(self.mini_player).to_be_visible(timeout=10000)
+        """Hace click en la tarjeta/botón y verifica que el mini-player quede en estado 'Pause'."""
+        boton = (
+              self.card_play_btn if self.card_play_btn.count() > 0
+                else (self.card_artwork if self.card_artwork.count() > 0 else self.card)
+                )
+        #boton = self.card_play_btn or self.card or self.card_artwork
 
+        # Click para iniciar reproducción hasta que sea visible el boton
+        self._click_when_visible(boton.locator("xpath=ancestor::button|.."))
+        #self._click_when_visible(boton)
+        #boton.click()
+
+        # Asegura que el mini-player aparece
+        self._wait_visible(self.mini_player, timeout=10000)
+
+        # Espera a que el estado cambie a 'Pause' (está reproduciendo).
+        try:
+            self._wait_visible(self.mini_pause_btn, timeout=5000)
+        except Exception:
+        # Si por timing el primer click dejó en 'Play' (o ya estaba playing y lo pausó),
+        # intentamos una vez más para forzar 'Pause'.
+            self._click_when_visible(boton)
+            self._wait_visible(self.mini_player, timeout=8000)
+            self._wait_visible(self.mini_pause_btn, timeout=5000)
     def click_repost(self):
-        self.repost_button.click()
-        expect(self.repost_button).to_have_attribute("aria-pressed", "true")
+        self.handle_notification_modal()
+        estado_inicial = self.repost_button.get_attribute("aria-label")
+        print(f"🎵 Estado inicial: {estado_inicial}")
+        self._click_when_visible(self.repost_button)
+        estado_esperado = "Unrepost" if estado_inicial == "Repost" else "Repost"
+        expect(self.repost_button).to_have_attribute("aria-label", estado_esperado, timeout=8000)
+        print(f"✅ El botón cambió de '{estado_inicial}' a '{estado_esperado}'.")
 
     def open_more_options(self):
-        self.more_options_button.click()
-        expect(self.page.get_by_text("Add to Playlist")).to_be_visible()
+        self.handle_notification_modal()
+        self._click_when_visible(self.more_options_button)
+        self._wait_visible(self.popup_menu)
+        print("✅ Menú de opciones desplegado correctamente.")
+       # self._wait_visible(self.add_playlist_option)
 
     def create_playlist(self):
-        self.add_playlist_option.click()
-        self.new_playlist_option.click()
-        expect(self.confirm_toast).to_be_visible(timeout=8000)
+        self.handle_notification_modal()
+        
+        self._click_when_visible(self.add_playlist_option)
+        self._click_when_visible(self.new_playlist_option)
+        #self._wait_visible(self.confirm_toast, timeout=5000)
+        self._wait_visible(self.confirm_toast_newplaylist, timeout=8000)
+        print("✅ Confirmación visible: Playlist creada correctamente.")
 
     def click_favorite(self):
-        self.favorite_button.click()
-        expect(self.favorite_button).to_have_attribute("aria-pressed", "true")
+        self.handle_notification_modal()
+        estado_inicial = self.favorite_button.get_attribute("aria-label")
+        print(f"🎵 Estado inicial: {estado_inicial}")
+        self._click_when_visible(self.favorite_button)
+        estado_esperado = "Unfavorite" if estado_inicial == "Favorite" else "Favorite"
+        expect(self.favorite_button).to_have_attribute("aria-label", estado_esperado, timeout=8000)
+        print(f"✅ El botón cambió de '{estado_inicial}' a '{estado_esperado}'.")
 
     def click_share(self):
-        self.share_option.click()
-        expect(self.direct_message_option).to_be_visible()
+        self.handle_notification_modal()
+        self._click_when_visible(self.share_option)
+        self._wait_visible(self.direct_message_option)
 
     def click_direct_message(self):
-        self.direct_message_option.click()
-        expect(self.search_dm).to_be_visible(timeout=8000)
+        self.handle_notification_modal()
+        self._click_when_visible(self.direct_message_option)
+        self._wait_visible(self.search_dm, timeout=8000)
 
     def click_embed(self):
-        self.embedded_option.click()
-        expect(self.embed_modal).to_be_visible(timeout=8000)
+        self.handle_notification_modal()
+        self._click_when_visible(self.embedded_option)
+        self._wait_visible(self.embed_modal, timeout=8000)
 
     def click_copy_link(self):
-        self.copy_link_option.click()
-        expect(self.confirm_toast).to_be_visible(timeout=8000)
+        self.handle_notification_modal()
+        self._click_when_visible(self.copy_link_option)
+        self._wait_visible(self.confirm_toast_copyenlacetrack, timeout=8000)
