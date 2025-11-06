@@ -10,7 +10,22 @@ from pages.upload_page import UploadPage
 @allure.feature("Upload")
 @allure.severity(allure.severity_level.CRITICAL)
 @allure.title("TC001 - Subir archivo válido en formato mp3")
-@pytest.mark.functional
+@allure.description("""
+Description
+Desde el módulo Upload, el usuario selecciona un archivo de audio válido con extensión .mp3 y lo envía para su carga.
+El sistema procesa el archivo y refleja el estado de subida exitosa sin errores de validación.
+
+Resultado esperado : El archivo .mp3 se carga correctamente y la UI muestra el estado de “subido” (o equivalente), permitiendo continuar con el flujo de publicación/edición.
+
+Pre-conditions
+SO/Navegador: Windows/macOS/Linux con Chrome/Edge/Firefox actualizados
+Aplicación web Audius accesible
+Sesión iniciada con una cuenta válida (fixture: page_with_session)
+Archivo de prueba existente y legible: resources/audio/demo.mp3
+Permisos del navegador para seleccionar archivos
+""")
+@pytest.mark.smoke
+@pytest.mark.integration
 def test_TC001_subir_archivo_valido(page_with_session):
     upload = UploadPage(page_with_session)
     file_path = "resources/audio/demo.mp3"
@@ -30,7 +45,21 @@ def test_TC001_subir_archivo_valido(page_with_session):
 @allure.feature("Upload")
 @allure.severity(allure.severity_level.NORMAL)
 @allure.title("TC002 - Poner TrackName con menos de 65 caracteres")
+@allure.description("""
+Description
+Tras cargar un audio válido, el usuario ingresa un TrackName cuya longitud es menor a 65 caracteres y completa los campos obligatorios.
+El sistema acepta el nombre y permite guardar sin errores.
+
+Resultado esperado : El TrackName (< 65 caracteres) se guarda correctamente y el flujo avanza sin validaciones bloqueantes.
+
+Pre-conditions
+SO/Navegador: Windows/macOS/Linux con Chrome/Edge/Firefox
+Aplicación web Audius accesible
+Sesión iniciada con una cuenta válida
+Archivo de prueba: resources/audio/demo.mp3
+""")
 @pytest.mark.functional
+@pytest.mark.integration
 def test_TC002_poner_en_el_TracKName_menor_a_65_caracteres(page_with_session):
     upload = UploadPage(page_with_session)
     file_path = "resources/audio/demo.mp3"
@@ -58,7 +87,21 @@ def test_TC002_poner_en_el_TracKName_menor_a_65_caracteres(page_with_session):
 @allure.feature("Upload")
 @allure.severity(allure.severity_level.CRITICAL)
 @allure.title("TC003 - No permitir TrackName vacío")
+@allure.description("""
+Description
+Luego de subir un audio válido, el usuario intenta continuar dejando el campo TrackName vacío.
+El sistema valida que el nombre no puede estar vacío y muestra un mensaje de error.
+
+Resultado esperado : Se bloquea el guardado y aparece el mensaje “Your track must have a name.”.
+
+Pre-conditions
+SO/Navegador: Windows/macOS/Linux con Chrome/Edge/Firefox
+Aplicación web Audius accesible
+Sesión iniciada válida
+Archivo de prueba: resources/audio/demo.mp3
+""")
 @pytest.mark.functional
+@pytest.mark.integration
 def test_TC003_Verificar_que_no_permita_poner_en_el_TracKName_caracteres_vacios_(page_with_session):
     upload = UploadPage(page_with_session)
     file_path = "resources/audio/demo.mp3"
@@ -86,7 +129,22 @@ def test_TC003_Verificar_que_no_permita_poner_en_el_TracKName_caracteres_vacios_
 @allure.feature("Upload")
 @allure.severity(allure.severity_level.MINOR)
 @allure.title("TC004 - No permitir solo espacios en el campo Name")
+@allure.description("""
+Description
+El usuario intenta guardar un TrackName compuesto únicamente por espacios.
+El sistema debe normalizar/validar y rechazar nombres vacíos efectivos.
+
+Resultado esperado : Se bloquea el guardado y se muestra el mensaje “Your track must have a name.”.
+Nota: Caso marcado como xfail por bug conocido (actualmente acepta espacios).
+
+Pre-conditions
+SO/Navegador: Windows/macOS/Linux con Chrome/Edge/Firefox
+Aplicación web Audius accesible
+Sesión iniciada válida
+Archivo de prueba: resources/audio/demo.mp3
+""")
 @pytest.mark.functional
+@pytest.mark.integration
 @pytest.mark.xfail(reason="Bug conocido: el sistema acepta espacios como caracteres válidos")
 def test_TC004_Verificar_que_no_permita_ingresar_espacios_vacios_al_campo_de_Name_validando_como_Caracteres(page_with_session):
     upload = UploadPage(page_with_session)
@@ -112,7 +170,21 @@ def test_TC004_Verificar_que_no_permita_ingresar_espacios_vacios_al_campo_de_Nam
 @allure.feature("Upload")
 @allure.severity(allure.severity_level.NORMAL)
 @allure.title("TC005 - Quitar espacios vacíos y permitir solo caracteres válidos")
+@allure.description("""
+Description
+El usuario ingresa un TrackName con espacios extra (p. ej., dobles espacios o espacios al inicio/fin) y caracteres válidos.
+El sistema limpia/normaliza el nombre, preservando únicamente caracteres válidos, y permite guardar.
+
+Resultado esperado : El TrackName se guarda sin espacios sobrantes (trim/condensado) y sin caracteres inválidos.
+
+Pre-conditions
+SO/Navegador: Windows/macOS/Linux con Chrome/Edge/Firefox
+Aplicación web Audius accesible
+Sesión iniciada válida
+Archivo de prueba: resources/audio/demo.mp3
+""")
 @pytest.mark.functional
+@pytest.mark.integration
 def test_TC005_Verificar_que_al_subir_con_espacios_vacios_en_el_campo_Name_se_quite_automaticamente_mostrando_solo_caracteres(page_with_session):
     upload = UploadPage(page_with_session)
     file_path = "resources/audio/demo.mp3"
@@ -136,7 +208,22 @@ def test_TC005_Verificar_que_al_subir_con_espacios_vacios_en_el_campo_Name_se_qu
 @allure.feature("Upload")
 @allure.severity(allure.severity_level.MINOR)
 @allure.title("TC006 - No permitir tags de más de 30 caracteres")
+@allure.description("""
+Description
+El usuario intenta ingresar un valor en Tags cuya longitud supera los 30 caracteres.
+El sistema debe validar el límite y bloquear el guardado hasta corregir el campo.
+
+Resultado esperado : Se muestra una advertencia/mensaje de error (p. ej., “Fix errors to continue your upload.”) y no se permite continuar.
+Nota: Caso marcado como xfail por bug conocido (actualmente permite > 30 caracteres).
+
+Pre-conditions
+SO/Navegador: Windows/macOS/Linux con Chrome/Edge/Firefox
+Aplicación web Audius accesible
+Sesión iniciada válida
+Archivo de prueba: resources/audio/demo.mp3
+""")
 @pytest.mark.functional
+@pytest.mark.integration
 @pytest.mark.xfail(reason="Permite ingresar más de 30 caracteres en el campo tags")
 def test_TC006_Verificar_que_no_permita_tags_que_superen_los_30_caracteres(page_with_session):
     upload = UploadPage(page_with_session)
@@ -162,7 +249,21 @@ def test_TC006_Verificar_que_no_permita_tags_que_superen_los_30_caracteres(page_
 @allure.feature("Upload")
 @allure.severity(allure.severity_level.CRITICAL)
 @allure.title("TC007 - No permitir archivos que no sean mp3 o wav")
-@pytest.mark.functional
+@allure.description("""
+Description
+El usuario intenta cargar un archivo con extensión no soportada (p. ej., .jpg) en el módulo Upload.
+El sistema valida el tipo MIME/extensión y rechaza la carga.
+
+Resultado esperado : No se permite la subida y se muestra el mensaje “Unsupported File Type”.
+
+Pre-conditions
+SO/Navegador: Windows/macOS/Linux con Chrome/Edge/Firefox
+Aplicación web Audius accesible
+Sesión iniciada válida
+Archivo de prueba inválido disponible: resources/audio/prueba.jpg
+""")
+@pytest.mark.smoke
+@pytest.mark.integration
 def test_TC007_Verificar_que_no_permita_subir_Archivos_que_no_estan_en_formato_mp3o_wav(page_with_session):
     upload = UploadPage(page_with_session)
     file_path = "resources/audio/prueba.jpg"
@@ -181,7 +282,21 @@ def test_TC007_Verificar_que_no_permita_subir_Archivos_que_no_estan_en_formato_m
 @allure.feature("Upload")
 @allure.severity(allure.severity_level.MINOR)
 @allure.title("TC008 - No permitir más de 64 caracteres en TrackName")
+@allure.description("""
+Description
+El usuario ingresa un TrackName que supera el límite permitido (más de 64 caracteres) e intenta guardar.
+El sistema debe impedir el guardado y mostrar una validación clara.
+
+Resultado esperado : No se permite continuar hasta que el TrackName cumpla la longitud (≤ 64). Debe mostrarse mensaje o inhabilitar el botón de guardado.
+
+Pre-conditions
+SO/Navegador: Windows/macOS/Linux con Chrome/Edge/Firefox
+Aplicación web Audius accesible
+Sesión iniciada válida
+Archivo de prueba: resources/audio/demo.mp3
+""")
 @pytest.mark.functional
+@pytest.mark.integration
 def test_TC008_Verificar_que_no_permita_ingresar_mas_de_64_caracteres_en_el_campo_TrackName(page_with_session):
     upload = UploadPage(page_with_session)
     file_path = "resources/audio/demo.mp3"
@@ -205,7 +320,21 @@ def test_TC008_Verificar_que_no_permita_ingresar_mas_de_64_caracteres_en_el_camp
 @allure.feature("Upload")
 @allure.severity(allure.severity_level.NORMAL)
 @allure.title("TC009 - Permitir mínimo 1 caracter en TrackName")
+@allure.description("""
+Description
+El usuario ingresa un TrackName de un solo carácter y completa los campos obligatorios.
+El sistema considera válido el mínimo y permite guardar.
+
+Resultado esperado : El TrackName de 1 carácter se guarda correctamente y no se presentan mensajes de error.
+
+Pre-conditions
+SO/Navegador: Windows/macOS/Linux con Chrome/Edge/Firefox
+Aplicación web Audius accesible
+Sesión iniciada válida
+Archivo de prueba: resources/audio/demo.mp3
+""")
 @pytest.mark.functional
+@pytest.mark.integration
 def test_TC009_Verificar_que_permita_ingresar_al_menos_1caracter_en_el_campo_TrackName_como_valido(page_with_session):
     upload = UploadPage(page_with_session)
     file_path = "resources/audio/demo.mp3"
@@ -229,7 +358,21 @@ def test_TC009_Verificar_que_permita_ingresar_al_menos_1caracter_en_el_campo_Tra
 @allure.feature("Upload")
 @allure.severity(allure.severity_level.NORMAL)
 @allure.title("TC010 - Permitir mínimo 1 caracter en Tags")
+@allure.description("""
+Description
+El usuario ingresa un Tag de un solo carácter junto con el resto de campos obligatorios.
+El sistema acepta el mínimo permitido en el campo Tags y permite guardar.
+
+Resultado esperado : El contenido se guarda correctamente con Tags de longitud mínima (1 carácter).
+
+Pre-conditions
+SO/Navegador: Windows/macOS/Linux con Chrome/Edge/Firefox
+Aplicación web Audius accesible
+Sesión iniciada válida
+Archivo de prueba: resources/audio/demo.mp3
+""")
 @pytest.mark.functional
+@pytest.mark.integration
 def test_TC010_Verificar_como_minimo_1_caracter_de_tamaño_ene_el_campo_Tags_para_ser_Valido(page_with_session):
     upload = UploadPage(page_with_session)
     file_path = "resources/audio/demo.mp3"
