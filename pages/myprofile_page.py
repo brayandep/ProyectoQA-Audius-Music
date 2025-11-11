@@ -1,7 +1,7 @@
 # pages/myprofile_page.py
 import re
 from playwright.sync_api import Page, Locator, expect
-from config.settings import BASE_URL
+from config.settings import MYPROFILE_URL, SIGNIN_URL
 from playwright_helpers.locators import (
     any_of, text_exact, text_like, has_class, attr_contains, by_role
 )
@@ -255,20 +255,14 @@ class MyProfilePage:
 
     def open_profile(self):
     
-        try:
-            if self.avatar_icon.is_visible():
-                self.avatar_icon.click()
-                print("🖱️ Perfil abierto desde el avatar.")
-            else:
-                expect(self.username_link).to_be_visible(timeout=5000)
-                self.username_link.first.click()
-                print("🖱️ Perfil abierto desde el enlace del nombre de usuario.")
-        except Exception as e:
-            raise RuntimeError(f"❌ No se pudo abrir el perfil: {e}")
+        """Abre la página My Profile del usuario (USERNAME de .env) y maneja el modal si aparece."""
+        self.page.goto(MYPROFILE_URL, wait_until="domcontentloaded")
 
-        # Esperar a que cargue la página del perfil
-        expect(self.edit_button).to_be_visible(timeout=10000)
-        print("✅ Vista de perfil cargada correctamente.")
+        if self.page.url.startswith(SIGNIN_URL):
+            raise RuntimeError("❌ No hay sesión iniciada. Inicia sesión antes de abrir My Profile.")
+
+        self._wait_visible(self.edit_button, timeout=10000)
+
 
     def validar_mensaje(self, texto: str, timeout=5000) -> bool:
    
