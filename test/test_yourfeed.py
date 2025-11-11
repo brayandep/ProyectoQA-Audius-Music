@@ -131,9 +131,7 @@ def test_TC004_desplegar_opciones(page_with_session, test_logger):
 @allure.description("""
 Description
 El usuario abre el menú de opciones de una canción y selecciona la opción “Add to Playlist” → “Create new playlist”.
-
 Resultado esperado : Se crea una nueva playlist y el sistema muestra un mensaje de confirmación o modal de configuración.
-
 Pre-conditions
 SO/Navegador: Windows/macOS/Linux
 Aplicación Audius abierta
