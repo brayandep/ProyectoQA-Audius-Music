@@ -30,14 +30,11 @@ def test_TC001_abrir_modal_followers(page_with_session, test_logger):
     feed = YourFeedPage(page_with_session)
     profile = MyProfilePage(page_with_session)
 
-    with allure.step("Abrir módulo Your Feed"):
-        test_logger.info("Navegando a Your Feed")
-        feed.open()
-        feed.handle_notification_modal()
 
     with allure.step("Abrir el perfil del usuario"):
-        test_logger.info("Abriendo perfil del usuario desde el avatar")
+        
         profile.open_profile()
+        feed.handle_notification_modal()
 
     with allure.step("Abrir el modal de Followers"):
         test_logger.info("Abriendo modal 'Followers'")
@@ -62,15 +59,12 @@ Perfil del usuario existente (con o sin following)
 @pytest.mark.smoke
 @pytest.mark.integration
 def test_TC002_abrir_modal_following(page_with_session, test_logger):
-    feed = YourFeedPage(page_with_session)
+    feed = YourFeedPage(page_with_session)   
     profile = MyProfilePage(page_with_session)
 
-    with allure.step("Navegar al perfil"):
-        test_logger.info("Entrando a Your Feed y cerrando modales iniciales")
-        feed.open()
-        feed.handle_notification_modal()
-        test_logger.info("Abriendo perfil")
+    with allure.step("Abrir el perfil del usuario"):
         profile.open_profile()
+        feed.handle_notification_modal()
 
     with allure.step("Abrir modal Following"):
         test_logger.info("Abriendo modal 'Following'")
@@ -99,10 +93,9 @@ def test_TC003_abrir_modal_share_profile(page_with_session, test_logger):
     profile = MyProfilePage(page_with_session)
 
     with allure.step("Abrir perfil y compartir"):
-        test_logger.info("Abriendo Your Feed → Perfil → Share")
-        feed.open()
-        feed.handle_notification_modal()
+
         profile.open_profile()
+        feed.handle_notification_modal()
         profile.open_share_modal()
 
 
@@ -129,9 +122,8 @@ def test_TC004_no_guardar_nombre_vacio(page_with_session, test_logger):
 
     with allure.step("Intentar editar un track con nombre vacío"):
         test_logger.info("Abriendo edición de track y probando nombre vacío")
-        feed.open()
-        feed.handle_notification_modal()
         profile.open_profile()
+        feed.handle_notification_modal()
         profile.open_track_for_edit()
         profile.try_empty_song_name()
 
@@ -161,9 +153,9 @@ def test_TC005_no_guardar_nombre_con_espacios(page_with_session, test_logger):
 
     with allure.step("Intentar guardar con nombre de solo espacios"):
         test_logger.info("Probando nombre con solo espacios")
-        feed.open()
-        feed.handle_notification_modal()
+
         profile.open_profile()
+        feed.handle_notification_modal()
         profile.open_track_for_edit()
         profile.try_blank_song_name()
 
@@ -191,9 +183,9 @@ def test_TC006_guardar_foto_perfil_de_track_vacia(page_with_session, test_logger
 
     with allure.step("Verificar guardar sin imagen de perfil"):
         test_logger.info("Intentando guardar track sin seleccionar imagen")
-        feed.open()
-        feed.handle_notification_modal()
+
         profile.open_profile()
+        feed.handle_notification_modal()
         profile.open_track_for_edit()
         profile.try_save_empty_profile_picture()
 
@@ -221,8 +213,9 @@ def test_TC007_editar_descripcion_con_caracteres_validos(page_with_session, test
 
     with allure.step("Editar descripción con texto válido"):
         test_logger.info("Editando descripción del perfil")
-        feed.open()
+ 
         profile.open_profile()
+        feed.handle_notification_modal()
         profile.open_edit_mode()
         profile.editar_descripcion("Perfil actualizado automáticamente desde Playwright QA 🧠")
         profile.guardar_cambios()
@@ -252,8 +245,8 @@ def test_TC008_editar_el_campo_Nombre_artista_con_datos_validos(page_with_sessio
 
     with allure.step("Editar campo Artista con nombre válido"):
         test_logger.info("Editando nombre de artista → 'QA Tester Automation'")
-        feed.open()
         profile.open_profile()
+        feed.handle_notification_modal()
         profile.open_edit_mode()
         profile.editar_nombre("QA Tester Automation")
         profile.guardar_cambios()
@@ -285,8 +278,8 @@ def test_TC009_Verificar_que_al_editar_el_campo_Artista_no_Supere_los_30_caracte
 
     with allure.step("Intentar ingresar más de 30 caracteres"):
         test_logger.info("Probando validación de longitud >30 en 'Artista'")
-        feed.open()
         profile.open_profile()
+        feed.handle_notification_modal()
         profile.open_edit_mode()
         profile.editar_nombre("LaamistadesunarelaciónafectivaentredosomáspersonasLaamistadesunarelaciónafectivaentredosomáspersonas")
         profile.guardar_cambios()
@@ -319,8 +312,9 @@ def test_TC010_Verificar_que_al_editar_el_campo_Artista_se_pueda_ingresar_como_m
 
     with allure.step("Editar campo Artista con un solo carácter"):
         test_logger.info("Ingresando un solo carácter en 'Artista'")
-        feed.open()
+        
         profile.open_profile()
+        feed.handle_notification_modal()
         profile.open_edit_mode()
         profile.editar_nombre("a")
         profile.guardar_cambios()
@@ -350,8 +344,9 @@ def test_TC011_Verificar_que_no_permita_guardar_vacio_el_campo_de_artista(page_w
 
     with allure.step("Intentar guardar campo Artista vacío"):
         test_logger.info("Probando guardar 'Artista' vacío")
-        feed.open()
+        
         profile.open_profile()
+        feed.handle_notification_modal()
         profile.open_edit_mode()
         profile.editar_nombre("")
         profile.guardar_cambios()
