@@ -50,6 +50,7 @@ Pre-conditions
 SO/Navegador: Windows/macOS/Linux
 Aplicación Audius abierta
 Sesión iniciada con una cuenta válida
+                    
 Disponibilidad de canciones en 'Your Feed'
 """)
 @pytest.mark.smoke
