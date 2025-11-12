@@ -238,11 +238,7 @@ def test_TC007_Verificar_que_no_permita_subir_Archivos_que_no_estan_en_formato_m
         test_logger.info("Intentando subir archivo no permitido (.jpg)")
         upload.open()
         upload.upload_audio_file(file_path)
-<<<<<<< HEAD
-
-=======
         
->>>>>>> 2ac5d08c91d64a258451e87337660a979bcea474
     with allure.step("Validar mensaje de tipo de archivo no soportado"):
         test_logger.info("Verificando mensaje 'Unsupported File Type'")
         assert upload.validar_mensaje("Unsupported File Type"), "❌ No se mostró el mensaje esperado"
