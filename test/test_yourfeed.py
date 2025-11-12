@@ -9,7 +9,7 @@ from pages.yourfeed_page import YourFeedPage
 
 @allure.feature("Your Feed")
 @allure.severity(allure.severity_level.NORMAL)
-@allure.title("TC001 - Verificar título 'Your Feed' visible correctamente")
+@allure.title("TCYF001 - Verificar título 'Your Feed' visible correctamente")
 @allure.description("""
 Description
 El usuario ingresa al módulo 'Your Feed' y visualiza correctamente el título principal de la sección en pantalla.
