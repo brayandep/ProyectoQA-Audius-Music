@@ -11,7 +11,7 @@ from pages.myprofile_page import MyProfilePage
 
 @allure.feature("My Profile")
 @allure.severity(allure.severity_level.NORMAL)
-@allure.title("TC001 - Abrir modal de Followers")
+@allure.title("TC001 - Abrir modal de Folowlers")
 @allure.description("""
 Description
 Desde Your Feed, el usuario abre su Perfil y toca el contador/enlace de “Followers” para visualizar el listado en un modal.

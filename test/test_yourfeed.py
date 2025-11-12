@@ -9,7 +9,7 @@ from pages.yourfeed_page import YourFeedPage
 
 @allure.feature("Your Feed")
 @allure.severity(allure.severity_level.NORMAL)
-@allure.title("TC001 - Verificar título 'Your Feed' visible correctamente")
+@allure.title("TCYF001 - Verificar título 'Your Feed' visible correctamente")
 @allure.description("""
 Description
 El usuario ingresa al módulo 'Your Feed' y visualiza correctamente el título principal de la sección en pantalla.
@@ -132,9 +132,7 @@ def test_TC004_desplegar_opciones(page_with_session, test_logger):
 @allure.description("""
 Description
 El usuario abre el menú de opciones de una canción y selecciona la opción “Add to Playlist” → “Create new playlist”.
-
 Resultado esperado : Se crea una nueva playlist y el sistema muestra un mensaje de confirmación o modal de configuración.
-
 Pre-conditions
 SO/Navegador: Windows/macOS/Linux
 Aplicación Audius abierta

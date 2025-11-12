@@ -168,6 +168,12 @@ class UploadPage:
         print(f"🎵 Archivo '{file_path}' cargado correctamente.")
 
     def assert_file_uploaded(self):
+        try:
+            # clic neutro para descartar cualquier modal flotante
+            self.page.mouse.click(10, 10)
+            print("🧩 Modal inicial cerrado con clic neutro.")
+        except Exception:
+            pass    
         """Verifica que el archivo fue detectado (Processing o Next visible)."""
         expect(self.processing_msg.or_(self.next_button)).to_be_visible(timeout=15000)
         print("✅ Archivo procesado y detectado correctamente.")
